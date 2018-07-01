@@ -83,12 +83,10 @@ def get_dwell_time(path):
 
 def figure_4():
     plt.close()
-    x1, y1 = get_dwell_time('Dwell Time/Linear/DwellTime.csv')
-    x2, y2 = get_dwell_time('Dwell Time/Linear/EndData.csv')
+    x, y = get_dwell_time('Dwell Time/Linear.csv')
 
     ax = plt.gca()
-    ax.scatter(x1, y1)
-    ax.scatter(x2, y2)
+    ax.scatter(x, y)
     ax.set_xscale('log')
     ax.set_ylabel('Max Wealth')
     ax.set_xlabel('Dwell Time')
@@ -97,18 +95,16 @@ def figure_4():
 
 def get_dwell_time_colour(path):
     df = pd.read_csv(path, header=None, names=['Coop','Dwell','Wealth'])
-    df['Coop'] = df['Coop'].apply(int)
-    values = df['Coop'].unique()
-    filtered = [(v, df.loc[df['Coop'] == v]) for v in values]
+    filtered = [(v, df.loc[df['Coop'] == v]) for v in df['Coop'].unique()]
     return [(v, f['Dwell'].values, f['Wealth'].values) for v, f in filtered]
 
 def figure_5():
     plt.close()
-    values = get_dwell_time_colour('Dwell Time/LinearColours/DwellTime.csv')
+    values = get_dwell_time_colour('Dwell Time/LinearColours.csv')
 
     ax = plt.gca()
     for c,x,y in reversed(values):
-        ax.scatter(x, y, label=str(c/10))
+        ax.scatter(x, y, label=str(c))
     ax.set_xscale('log')
     ax.set_ylabel('Max Wealth')
     ax.set_xlabel('Dwell Time')
@@ -207,12 +203,10 @@ def figure_9():
 
 def figure_10():
     plt.close()
-    x1, y1 = get_dwell_time('Dwell Time/Logarithmic/DwellTime.csv')
-    x2, y2 = get_dwell_time('Dwell Time/Logarithmic/EndData.csv')
+    x, y = get_dwell_time('Dwell Time/Logarithmic.csv')
 
     ax = plt.gca()
-    ax.scatter(x1, y1)
-    ax.scatter(x2, y2)
+    ax.scatter(x, y)
     ax.set_xscale('log')
     ax.set_ylabel('Max Wealth')
     ax.set_xlabel('Dwell Time')
@@ -221,11 +215,11 @@ def figure_10():
 
 def figure_11():
     plt.close()
-    values = get_dwell_time_colour('Dwell Time/LogarithmicColours/DwellTime.csv')
+    values = get_dwell_time_colour('Dwell Time/LogarithmicColours.csv')
 
     ax = plt.gca()
     for c,x,y in values:
-        ax.scatter(x, y, label=str(1 + (c-1)/4))
+        ax.scatter(x, y, label=str(c))
     ax.set_xscale('log')
     ax.set_ylabel('Max Wealth')
     ax.set_xlabel('Dwell Time')
