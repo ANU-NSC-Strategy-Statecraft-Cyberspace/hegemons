@@ -45,14 +45,14 @@ def figure_3_data():
     if not os.path.exists('Model Runs'):
         os.makedirs('Model Runs')
 
-    run(end_at_tick=2001, cooperate_probability=0.3).write_model_run('Model Runs/Linear 0.3 coop.csv', 1000, 2001)
-    run(end_at_tick=2001, cooperate_probability=0.5).write_model_run('Model Runs/Linear default.csv', 1000, 2001)
-    run(end_at_tick=2001, cooperate_probability=0.7).write_model_run('Model Runs/Linear 0.7 coop.csv', 1000, 2001)
-
-def convert(path):
-    df = pd.read_csv(path)
-    df['Time'] = df.groupby('Name').cumcount()
-    np.savetxt(path + 'new.csv', df.set_index(['Time', 'Name']).unstack().values, fmt='%f', delimiter=',')
+    data = run(end_at_tick=2001, cooperate_probability=0.3).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Linear 0.3 coop.csv', data.T, fmt='%f', delimiter=',')
+    
+    data = run(end_at_tick=2001, cooperate_probability=0.5).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Linear default.csv', data.T, fmt='%f', delimiter=',')
+    
+    data = run(end_at_tick=2001, cooperate_probability=0.7).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Linear 0.7 coop.csv', data.T, fmt='%f', delimiter=',')
 
 def get_model_run(path):
     return np.loadtxt(path, delimiter=',')
@@ -76,6 +76,13 @@ def figure_3():
         ax.set_xlabel('Time')
     fig.suptitle('Figure 3')
     plt.show()
+    
+def figure_4_data():
+    if not os.path.exists('Dwell Time'):
+        os.makedirs('Dwell Time')
+    
+    data = run(end_at_tick=100000).get_dwell_time()
+    np.savetxt('Dwell Time/Linear.csv', data, fmt=['%d', '%f'], delimiter=',')
 
 def get_dwell_time(path):
     data = np.loadtxt(path, delimiter =',')
@@ -92,6 +99,20 @@ def figure_4():
     ax.set_xlabel('Dwell Time')
     ax.set_title('Figure 4')
     plt.show()
+    
+def figure_5_data():
+    if not os.path.exists('Dwell Time'):
+        os.makedirs('Dwell Time')
+    
+    data = np.array([]).reshape(0,3)
+    
+    for coop in [0.1,0.2,0.3,0.4,0.5,0.6,0.7]:
+        result = run(end_at_tick=100000, cooperate_probability=coop).get_dwell_time()
+        coop_values = np.array([[coop]]*len(result))
+        result = np.concatenate([coop_values,result], axis=1)
+        data = np.concatenate([data,result])
+
+    np.savetxt('Dwell Time/LinearColours.csv', data, fmt=['%.1f', '%d', '%f'], delimiter=',')
 
 def get_dwell_time_colour(path):
     df = pd.read_csv(path, header=None, names=['Coop','Dwell','Wealth'])
@@ -155,11 +176,20 @@ def figure_8_and_9_data():
     if not os.path.exists('Model Runs'):
         os.makedirs('Model Runs')
 
-    run(end_at_tick=2001, cooperate_probability=0.3, linear_power=False, power_exponent=1.75).write_model_run('Model Runs/Log 0.3 coop.csv', 1000, 2001)
-    run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=1.75).write_model_run('Model Runs/Log default.csv', 1000, 2001)
-    run(end_at_tick=2001, cooperate_probability=0.7, linear_power=False, power_exponent=1.75).write_model_run('Model Runs/Log 0.7 coop.csv', 1000, 2001)
-    run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=3.0).write_model_run('Model Runs/Log 3.0 exponent.csv', 1000, 2001)
-    run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=1.0).write_model_run('Model Runs/Log 1.0 exponent.csv', 1000, 2001)
+    data = run(end_at_tick=2001, cooperate_probability=0.3, linear_power=False, power_exponent=1.75).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Log 0.3 coop.csv', data.T, fmt='%f', delimiter=',')
+    
+    data = run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=1.75).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Log default.csv', data.T, fmt='%f', delimiter=',')
+    
+    data = run(end_at_tick=2001, cooperate_probability=0.7, linear_power=False, power_exponent=1.75).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Log 0.7 coop.csv', data.T, fmt='%f', delimiter=',')
+    
+    data = run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=3.0).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Log 3.0 exponent.csv', data.T, fmt='%f', delimiter=',')
+    
+    data = run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=1.0).get_model_run(1000, 2001)
+    np.savetxt('Model Runs/Log 1.0 exponent.csv', data.T, fmt='%f', delimiter=',')
 
 def figure_8():
     plt.close()
@@ -200,6 +230,17 @@ def figure_9():
         ax.set_xlabel('Time')
     fig.suptitle('Figure 9')
     plt.show()
+    
+def figure_10_data():
+    if not os.path.exists('Dwell Time'):
+        os.makedirs('Dwell Time')
+    
+    data = np.array([]).reshape([0,2])
+    
+    for _ in range(10):
+        data = np.concatenate([data, run(linear_power=False).get_dwell_time()])
+
+    np.savetxt('Dwell Time/Logarithmic.csv', data, fmt=['%d', '%f'], delimiter=',')
 
 def figure_10():
     plt.close()
@@ -212,6 +253,20 @@ def figure_10():
     ax.set_xlabel('Dwell Time')
     ax.set_title('Figure 10')
     plt.show()
+    
+def figure_11_data():
+    if not os.path.exists('Dwell Time'):
+        os.makedirs('Dwell Time')
+    
+    data = np.array([]).reshape(0,3)
+    
+    for exponent in [1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0]:
+        result = run(linear_power=False, power_exponent=exponent).get_dwell_time()
+        exponent_values = np.array([[exponent]]*len(result))
+        result = np.concatenate([exponent_values,result], axis=1)
+        data = np.concatenate([data,result])
+
+    np.savetxt('Dwell Time/LogarithmicColours.csv', data, fmt=['%.2f', '%d', '%f'], delimiter=',')
 
 def figure_11():
     plt.close()

@@ -60,10 +60,28 @@ class Context:
         """ b is surprised """
         return (a, b) if random.random() < a.power()/(a.power() + b.power()*self.coop_penalty) else (b, a)
         
-    def write_model_run(self, path, start_time, end_time):
-        data = np.array([state.history[start_time:end_time] for state in self.plot_states])
-        np.savetxt(path, data.T, fmt='%f', delimiter=',')
-    
+    def get_model_run(self, start_time, end_time):
+        return np.array([state.history[start_time:end_time] for state in self.plot_states])
+        
+    def get_dwell_time(self):
+        result = []
+        threshold = self.min_wealth if self.linear_power else 10**(-0.5)
+        for state in self.plot_states:
+            wealth = 0
+            time = 0
+            for w in state.history:
+                if w <= threshold:
+                    if time > 5:
+                        result.append((time, wealth))
+                    time = 0
+                    wealth = 0
+                else:
+                    time += 1
+                    wealth = max(wealth, w)
+            if time > 5:
+                result.append((time, wealth))
+        return np.array(result)
+
 class State:
     def __init__(self, context):
         self.context = context
