@@ -81,6 +81,20 @@ class Context:
             if time > 5:
                 result.append((time, wealth))
         return np.array(result)
+        
+    def get_log_wealth_heatmap(self, minBucket, bucketSize, numBuckets):
+        result = [0]*numBuckets
+        for state in self.plot_states:
+            for w in state.history:
+                W = math.log10(w)
+                if W < minBucket:
+                    result[0] += 1
+                elif W >= minBucket + bucketSize * numBuckets:
+                    result[-1] += 1
+                else:
+                    bucket = int((W - minBucket) / bucketSize)
+                    result[bucket] += 1
+        return np.array([result])
 
 class State:
     def __init__(self, context):

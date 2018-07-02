@@ -132,10 +132,21 @@ def figure_5():
     ax.set_title('Figure 5')
     ax.legend()
     plt.show()
+    
+def figure_6_data():
+    if not os.path.exists('Heatmaps'):
+        os.makedirs('Heatmaps')
+    
+    data = np.array([]).reshape(0,50)
+    
+    for coop in np.arange(0.14, 0.71, 0.01):
+        result = run(cooperate_probability=coop).get_log_wealth_heatmap(0, 0.05, 51)[:,1:]
+        data = np.concatenate([data,result])
 
+    np.savetxt('Heatmaps/CooperateHeatmap.csv', data, fmt='%d', delimiter=',')
+    
 def get_heatmap(path):
-    df = pd.read_csv(path, header=None).groupby(0).mean()
-    return df.values.T
+    return np.loadtxt(path, delimiter=',').T
 
 def get_modified_rainbow_cmap():
     rainbow = plt.get_cmap('rainbow')
@@ -145,14 +156,12 @@ def get_modified_rainbow_cmap():
 def figure_6():
     plt.close()
     data = get_heatmap('Heatmaps/CooperateHeatmap.csv')
-    data[data == 0] = -1200 # 1/9th of 11000 so that the entire first 10% of the colormap is reserved i.e. data = 1 normalises to 0.1
+    data[data == 0] = -data.max()/9 # 1/9th so that the entire first 10% of the colormap is reserved i.e. data = 1 normalises to 0.1
     ax = plt.gca()
-    ax.imshow(data, extent=[0.14, 0.75, 0, 99], aspect='auto', vmin=-1200, vmax=11000, origin='lower', interpolation='bilinear', cmap=get_modified_rainbow_cmap())
+    ax.imshow(data, extent=[0.135, 0.705, 0.05, 2.55], aspect='auto', origin='lower', interpolation='bilinear', cmap=get_modified_rainbow_cmap())
     ax.set_ylabel('Wealth Level')
     ax.set_xlabel('Probability of Cooperation')
-    ax.set_xlim(0.14, 0.7)
-    ax.set_ylim(1, 50)
-    ax.set_yticks([20,40])
+    ax.set_yticks([1,2])
     ax.set_yticklabels(['10', '100'])
     ax.set_title('Figure 6')
     plt.show()
@@ -281,19 +290,33 @@ def figure_11():
     ax.set_title('Figure 11')
     ax.legend()
     plt.show()
+    
+def figure_12_data():
+    if not os.path.exists('Heatmaps'):
+        os.makedirs('Heatmaps')
+    
+    data = np.array([]).reshape(0,700)
+    
+    for exponent in np.arange(1.0, 3.01, 0.01):
+        print('{:.1%} done'.format((exponent-1)/2))
+        result = []
+        for _ in range(4):
+            result.append(run(linear_power=False, power_exponent=exponent).get_log_wealth_heatmap(-5, 0.01, 700))
+        result = np.array(result).mean(axis=0)
+        data = np.concatenate([data,result])
 
+    np.savetxt('Heatmaps/ExponentHeatmap.csv', data, fmt='%g', delimiter=',')
+    
 def figure_12():
     plt.close()
     data = get_heatmap('Heatmaps/ExponentHeatmap.csv')
-    data /= data.max()
-    data[data == 0] = -1/9
+    data[data == 0] = -data.max()/9
     ax = plt.gca()
-    ax.imshow(data, extent=[1.0, 3.0, -600, 399], aspect='auto', origin='lower', interpolation='bilinear', cmap=get_modified_rainbow_cmap())
+    ax.imshow(data, extent=[0.995, 3.005, -5, 2], aspect='auto', origin='lower', interpolation='bilinear', cmap=get_modified_rainbow_cmap())
     ax.set_ylabel('Wealth Level')
     ax.set_xlabel('Power Exponent')
-    ax.set_xlim(3.0, 1.0)
-    ax.set_ylim(-500, 200)
-    ax.set_yticks([-400,-300,-200,-100,0,100,200])
+    ax.set_xlim(3.005, 0.995)
+    ax.set_yticks([-4,-3,-2,-1,0,1,2])
     ax.set_yticklabels(['1/10000', '1/1000', '1/100', '1/10', '1', '10', '100'])
     ax.set_title('Figure 12')
     plt.show()
