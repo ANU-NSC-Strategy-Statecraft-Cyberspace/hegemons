@@ -47,10 +47,10 @@ def figure_3_data():
 
     data = run(end_at_tick=2001, cooperate_probability=0.3).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Linear 0.3 coop.csv', data.T, fmt='%f', delimiter=',')
-    
+
     data = run(end_at_tick=2001, cooperate_probability=0.5).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Linear default.csv', data.T, fmt='%f', delimiter=',')
-    
+
     data = run(end_at_tick=2001, cooperate_probability=0.7).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Linear 0.7 coop.csv', data.T, fmt='%f', delimiter=',')
 
@@ -76,11 +76,28 @@ def figure_3():
         ax.set_xlabel('Time')
     fig.suptitle('Figure 3')
     plt.show()
-    
+
+def warontherocks_figure_1():
+    plt.close()
+    x = range(1000,2001)
+    y1 = get_model_run('Model Runs/Linear 0.3 coop.csv')
+    y2 = get_model_run('Model Runs/Linear default.csv')
+
+    fig, axes = plt.subplots(2, 1)
+    axes[0].plot(x, y1)
+    axes[0].set_title('Probability of cooperation = 0.3')
+    axes[1].plot(x, y2)
+    axes[1].set_title('Probability of cooperation = 0.5')
+    for ax in axes:
+        ax.set_ylabel('Wealth')
+        ax.set_xlabel('Time')
+        ax.set_ylim(0,30)
+    plt.show()
+
 def figure_4_data():
     if not os.path.exists('Dwell Time'):
         os.makedirs('Dwell Time')
-    
+
     data = run(end_at_tick=100000).get_dwell_time()
     np.savetxt('Dwell Time/Linear.csv', data, fmt=['%d', '%f'], delimiter=',')
 
@@ -99,13 +116,13 @@ def figure_4():
     ax.set_xlabel('Dwell Time')
     ax.set_title('Figure 4')
     plt.show()
-    
+
 def figure_5_data():
     if not os.path.exists('Dwell Time'):
         os.makedirs('Dwell Time')
-    
+
     data = np.array([]).reshape(0,3)
-    
+
     for coop in [0.1,0.2,0.3,0.4,0.5,0.6,0.7]:
         result = run(end_at_tick=100000, cooperate_probability=coop).get_dwell_time()
         coop_values = np.array([[coop]]*len(result))
@@ -132,19 +149,33 @@ def figure_5():
     ax.set_title('Figure 5')
     ax.legend()
     plt.show()
-    
+
+def warontherocks_figure_2():
+    plt.close()
+    values = get_dwell_time_colour('Dwell Time/LinearColours.csv')
+
+    ax = plt.gca()
+    for c,x,y in reversed(values):
+        green = (c - values[0][0])/values[-1][0]
+        ax.scatter(x, y, label=str(c), c=[(1-green,green,0)], s=9)
+    ax.set_xscale('log')
+    ax.set_ylabel('Max Wealth')
+    ax.set_xlabel('Dwell Time')
+    ax.legend()
+    plt.show()
+
 def figure_6_data():
     if not os.path.exists('Heatmaps'):
         os.makedirs('Heatmaps')
-    
+
     data = np.array([]).reshape(0,50)
-    
+
     for coop in np.arange(0.14, 0.71, 0.01):
         result = run(cooperate_probability=coop).get_log_wealth_heatmap(0, 0.05, 51)[:,1:]
         data = np.concatenate([data,result])
 
     np.savetxt('Heatmaps/CooperateHeatmap.csv', data, fmt='%d', delimiter=',')
-    
+
 def get_heatmap(path):
     return np.loadtxt(path, delimiter=',').T
 
@@ -180,23 +211,23 @@ def figure_7():
     ax.tick_params('both', bottom=False, labelbottom=False, left=False, labelleft=False)
     plt.legend()
     plt.show()
-    
+
 def figure_8_and_9_data():
     if not os.path.exists('Model Runs'):
         os.makedirs('Model Runs')
 
     data = run(end_at_tick=2001, cooperate_probability=0.3, linear_power=False, power_exponent=1.75).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Log 0.3 coop.csv', data.T, fmt='%f', delimiter=',')
-    
+
     data = run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=1.75).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Log default.csv', data.T, fmt='%f', delimiter=',')
-    
+
     data = run(end_at_tick=2001, cooperate_probability=0.7, linear_power=False, power_exponent=1.75).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Log 0.7 coop.csv', data.T, fmt='%f', delimiter=',')
-    
+
     data = run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=3.0).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Log 3.0 exponent.csv', data.T, fmt='%f', delimiter=',')
-    
+
     data = run(end_at_tick=2001, cooperate_probability=0.5, linear_power=False, power_exponent=1.0).get_model_run(1000, 2001)
     np.savetxt('Model Runs/Log 1.0 exponent.csv', data.T, fmt='%f', delimiter=',')
 
@@ -239,13 +270,13 @@ def figure_9():
         ax.set_xlabel('Time')
     fig.suptitle('Figure 9')
     plt.show()
-    
+
 def figure_10_data():
     if not os.path.exists('Dwell Time'):
         os.makedirs('Dwell Time')
-    
+
     data = np.array([]).reshape([0,2])
-    
+
     for _ in range(10):
         data = np.concatenate([data, run(linear_power=False).get_dwell_time()])
 
@@ -262,13 +293,13 @@ def figure_10():
     ax.set_xlabel('Dwell Time')
     ax.set_title('Figure 10')
     plt.show()
-    
+
 def figure_11_data():
     if not os.path.exists('Dwell Time'):
         os.makedirs('Dwell Time')
-    
+
     data = np.array([]).reshape(0,3)
-    
+
     for exponent in [1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0]:
         result = run(linear_power=False, power_exponent=exponent).get_dwell_time()
         exponent_values = np.array([[exponent]]*len(result))
@@ -290,13 +321,13 @@ def figure_11():
     ax.set_title('Figure 11')
     ax.legend()
     plt.show()
-    
+
 def figure_12_data():
     if not os.path.exists('Heatmaps'):
         os.makedirs('Heatmaps')
-    
+
     data = np.array([]).reshape(0,700)
-    
+
     for exponent in np.arange(1.0, 3.01, 0.01):
         print('{:.1%} done'.format((exponent-1)/2))
         result = []
@@ -306,7 +337,7 @@ def figure_12_data():
         data = np.concatenate([data,result])
 
     np.savetxt('Heatmaps/ExponentHeatmap.csv', data, fmt='%g', delimiter=',')
-    
+
 def figure_12():
     plt.close()
     data = get_heatmap('Heatmaps/ExponentHeatmap.csv')
@@ -375,7 +406,7 @@ def figure_15():
 
 
 if __name__ == "__main__":
-    figure_1()
+    '''figure_1()
     figure_2()
     figure_3()
     figure_4()
@@ -389,4 +420,6 @@ if __name__ == "__main__":
     figure_12()
     figure_13()
     figure_14()
-    figure_15()
+    figure_15()'''
+    warontherocks_figure_1()
+    warontherocks_figure_2()
